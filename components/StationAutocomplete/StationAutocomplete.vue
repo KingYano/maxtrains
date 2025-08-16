@@ -19,13 +19,8 @@
       @keydown.escape="hideSuggestions"
     />
 
-    <div v-if="loading" id="autocomplete-status" class="autocomplete-loading" aria-live="polite">
-      <i class="ri-loader-5-line animate-spin" aria-hidden="true"></i>
-      Recherche...
-    </div>
-
     <div 
-      v-if="showSuggestions && (filteredStations.length > 0 || searchQuery.length >= 2)"
+      v-if="showSuggestions && (filteredStations.length > 0 || searchQuery.length >= 2 || loading)"
       class="autocomplete-suggestions"
       role="listbox"
       :aria-label="`${filteredStations.length} suggestions disponibles`"
@@ -47,7 +42,6 @@
         >
           <div class="station-info">
             <div class="station-name">{{ station.name }}</div>
-            <div class="station-details">{{ station.city }}</div>
           </div>
           <div class="station-icon">
             <i class="ri-train-line"></i>

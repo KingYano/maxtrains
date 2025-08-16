@@ -5,23 +5,6 @@
   width: 100%;
 }
 
-.autocomplete-loading {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 2px solid get-color(border-color);
-  border-top: none;
-  border-radius: 0 0 get-radius(lg) get-radius(lg);
-  padding: get-spacing(sm);
-  display: flex;
-  align-items: center;
-  gap: get-spacing(xs);
-  font-size: get-font-size(sm);
-  color: get-color(secondary);
-  z-index: 1000;
-}
 
 .autocomplete-suggestions {
   position: absolute;
@@ -72,10 +55,6 @@
   margin-bottom: 2px;
 }
 
-.station-details {
-  font-size: get-font-size(xs);
-  color: get-color(secondary);
-}
 
 .station-icon {
   font-size: 18px;

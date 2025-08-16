@@ -28,7 +28,6 @@
     <div v-else-if="type === 'autocomplete'" class="skeleton-autocomplete">
       <div v-for="i in count || 5" :key="i" class="skeleton-autocomplete-item">
         <div class="skeleton skeleton-station-name"></div>
-        <div class="skeleton skeleton-station-city"></div>
       </div>
     </div>
 

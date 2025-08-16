@@ -47,7 +47,11 @@ const initMap = () => {
     setTimeout(() => {
       const mapElement = document.getElementById('map')
       if (mapElement) {
-        map = L.map('map').setView([46.603354, 1.888334], 6)
+        map = L.map('map', {
+          zoomAnimation: false,
+          fadeAnimation: false,
+          markerZoomAnimation: false
+        }).setView([46.603354, 1.888334], 6)
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors'
@@ -88,7 +92,6 @@ const addMarkers = async () => {
       opacity: 1,
       fillOpacity: 1
     }).addTo(map)
-    departureMarker.bindPopup(`<h4>🚉 ${departureStation}</h4><p>Gare de départ</p>`)
     markers.push(departureMarker)
     bounds.extend([departureCoords.lat, departureCoords.lng])
   }
@@ -109,7 +112,6 @@ const addMarkers = async () => {
         opacity: 1,
         fillOpacity: 1
       }).addTo(map)
-      marker.bindPopup(`<h4>🎯 ${destination}</h4><p>${trains.length} trains</p>`)
       
       marker.on('click', () => {
         emit('destinationSelected', destination)

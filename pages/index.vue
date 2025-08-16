@@ -161,6 +161,7 @@
 
 <script setup lang="ts">
 import { format } from 'date-fns'
+import type { Station, TGVMaxAvailability, SearchParams } from '~/types/global'
 
 const searchStore = useSearchStore()
 
@@ -176,8 +177,8 @@ const searchParams = reactive({
   date: today
 })
 
-const selectedDepartureStation = ref(null)
-const selectedArrivalStation = ref(null)
+const selectedDepartureStation = ref<Station | null>(null)
+const selectedArrivalStation = ref<Station | null>(null)
 
 const { isSearching: searching, currentResults: searchResults } = storeToRefs(searchStore)
 const hasSearched = ref(false)
@@ -217,19 +218,19 @@ const validateDate = () => {
 }
 
 const groupedResults = computed(() => {
-  if (searchResults.value.length === 0) return {}
+  if (searchResults.value.length === 0) return {} as Record<string, TGVMaxAvailability[]>
   
-  const grouped = searchResults.value.reduce((acc, train) => {
+  const grouped = searchResults.value.reduce((acc: Record<string, TGVMaxAvailability[]>, train: TGVMaxAvailability) => {
     const destination = train.arrivalStation.name
     if (!acc[destination]) {
       acc[destination] = []
     }
     acc[destination].push(train)
     return acc
-  }, {})
+  }, {} as Record<string, TGVMaxAvailability[]>)
   
   Object.keys(grouped).forEach(destination => {
-    grouped[destination].sort((a, b) => new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime())
+    grouped[destination].sort((a: TGVMaxAvailability, b: TGVMaxAvailability) => new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime())
   })
   
   return grouped
@@ -239,13 +240,13 @@ const destinationsCount = computed(() => Object.keys(groupedResults.value).lengt
 const totalTrainsCount = computed(() => searchResults.value.length)
 
 
-const onDepartureSelected = (station) => {
+const onDepartureSelected = (station: Station) => {
   selectedDepartureStation.value = station
   searchParams.departureStation = station.name
   validateDepartureStation()
 }
 
-const onArrivalSelected = (station) => {
+const onArrivalSelected = (station: Station) => {
   selectedArrivalStation.value = station
   searchParams.arrivalStation = station.name
 }
@@ -269,7 +270,7 @@ const handleSearch = async () => {
   searchStore.saveToStorage()
 
   try {
-    const { data } = await $fetch('/api/tgvmax/search', {
+    const { data } = await $fetch<{ data: TGVMaxAvailability[] }>('/api/tgvmax/search', {
       method: 'POST',
       body: {
         departureStation: selectedDepartureStation.value?.code || searchParams.departureStation,
@@ -286,19 +287,18 @@ const handleSearch = async () => {
       showError('Aucun résultat', 'Aucun train TGVmax trouvé pour cette recherche. Essayez une autre date ou destination.')
     }
   } catch (error) {
-    console.error('Erreur lors de la recherche:', error)
     showError('Erreur de recherche', 'Impossible de récupérer les données. Veuillez réessayer dans quelques instants.')
   } finally {
     searchStore.setSearching(false)
   }
 }
 
-const formatTime = (time) => {
+const formatTime = (time: string) => {
   return format(new Date(time), 'HH:mm')
 }
 
-const getStatusText = (status) => {
-  const statusMap = {
+const getStatusText = (status: TGVMaxAvailability['status']) => {
+  const statusMap: Record<TGVMaxAvailability['status'], string> = {
     available: 'Disponible',
     limited: 'Places limitées',
     full: 'Complet'
@@ -307,7 +307,7 @@ const getStatusText = (status) => {
 }
 
 
-const fillFromHistory = (historyItem) => {
+const fillFromHistory = (historyItem: SearchParams) => {
   searchParams.departureStation = historyItem.departureStation
   searchParams.arrivalStation = historyItem.arrivalStation || ''
   searchParams.date = historyItem.date

@@ -1,0 +1,9 @@
+@import './variables';
+
+.highlight-destination {
+  background: get-color(success-bg);
+  border-radius: get-radius(sm);
+  padding: get-spacing(md);
+  border: 2px solid get-color(primary);
+  transform: scale(1.02);
+}
