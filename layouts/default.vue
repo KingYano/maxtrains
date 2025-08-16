@@ -23,6 +23,7 @@
     <main class="container" role="main">
       <slot />
     </main>
+    <Footer />
   </div>
 </template>
 
@@ -39,3 +40,7 @@ onMounted(() => {
   initializeDarkMode()
 })
 </script>
+
+<style lang="scss" scoped>
+@import './default.scss';
+</style>

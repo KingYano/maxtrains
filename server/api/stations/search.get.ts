@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Récupérer les gares TGVMax depuis l'API officielle
     const stations = await getTGVMaxStations(searchQuery)
     
     return {
@@ -28,7 +27,6 @@ export default defineEventHandler(async (event) => {
 
 async function getTGVMaxStations(searchQuery: string) {
   try {
-    // Récupérer toutes les gares d'origine TGVMax
     const originsUrl = `https://ressources.data.sncf.com/api/records/1.0/search/?dataset=tgvmax&rows=0&refine.od_happy_card=OUI&facet=origine`
     const destinationsUrl = `https://ressources.data.sncf.com/api/records/1.0/search/?dataset=tgvmax&rows=0&refine.od_happy_card=OUI&facet=destination`
     
@@ -42,7 +40,6 @@ async function getTGVMaxStations(searchQuery: string) {
       destinationsResponse.json()
     ])
 
-    // Combiner origines et destinations et supprimer les doublons
     const allStations = new Set()
     
     originsData.facet_groups?.[0]?.facets?.forEach((facet: any) => {
@@ -53,7 +50,6 @@ async function getTGVMaxStations(searchQuery: string) {
       allStations.add(facet.name)
     })
 
-    // Convertir en format attendu et filtrer par recherche
     const queryLower = searchQuery.toLowerCase()
     const stationsList = Array.from(allStations) as string[]
     const stations = stationsList
@@ -77,7 +73,6 @@ async function getTGVMaxStations(searchQuery: string) {
 }
 
 function getStationCoordinates(stationName: string) {
-  // Coordonnées approximatives des principales gares TGVMax
   const coords: { [key: string]: { lat: number; lng: number } } = {
     'PARIS (intramuros)': { lat: 48.856614, lng: 2.3522219 },
     'LYON (intramuros)': { lat: 45.760596, lng: 4.859409 },
@@ -91,6 +86,6 @@ function getStationCoordinates(stationName: string) {
     'AVIGNON TGV': { lat: 43.921684, lng: 4.786255 }
   }
   
-  return coords[stationName] || { lat: 46.227638, lng: 2.213749 } // Centre de la France par défaut
+  return coords[stationName] || { lat: 46.227638, lng: 2.213749 }
 }
 

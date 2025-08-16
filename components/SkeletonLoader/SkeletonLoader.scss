@@ -1,0 +1,157 @@
+@import '~/assets/scss/variables';
+
+.skeleton-container {
+  width: 100%;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: get-radius(xs);
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-search-results {
+  padding: get-spacing(lg);
+  background: white;
+  border-radius: get-radius(xl);
+  margin-bottom: get-spacing(md);
+}
+
+.skeleton-header {
+  margin-bottom: get-spacing(xl);
+}
+
+.skeleton-title {
+  height: 24px;
+  width: 60%;
+  margin-bottom: get-spacing(xs);
+}
+
+.skeleton-subtitle {
+  height: 16px;
+  width: 80%;
+}
+
+.skeleton-destination-group {
+  margin-bottom: get-spacing(xl);
+}
+
+.skeleton-destination-title {
+  height: 20px;
+  width: 40%;
+  margin-bottom: get-spacing(md);
+  border-radius: get-radius(sm);
+}
+
+.skeleton-train-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: get-spacing(md);
+  margin-bottom: get-spacing(sm);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid get-color(border-color);
+  border-radius: get-radius(lg);
+}
+
+.skeleton-train-content {
+  flex: 1;
+}
+
+.skeleton-train-header {
+  display: flex;
+  align-items: center;
+  gap: get-spacing(md);
+  margin-bottom: get-spacing(xs);
+}
+
+.skeleton-train-id {
+  height: 16px;
+  width: 80px;
+}
+
+.skeleton-train-time {
+  height: 16px;
+  width: 120px;
+}
+
+.skeleton-train-details {
+  display: flex;
+  gap: get-spacing(md);
+}
+
+.skeleton-duration {
+  height: 14px;
+  width: 60px;
+}
+
+.skeleton-seats {
+  height: 14px;
+  width: 80px;
+}
+
+.skeleton-status {
+  height: 24px;
+  width: 100px;
+  border-radius: get-radius(full);
+}
+
+.skeleton-autocomplete {
+  padding: 0;
+}
+
+.skeleton-autocomplete-item {
+  padding: get-spacing(sm) get-spacing(md);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.skeleton-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.skeleton-station-name {
+  height: 16px;
+  width: 70%;
+  margin-bottom: get-spacing(xs);
+}
+
+.skeleton-station-city {
+  height: 12px;
+  width: 50%;
+}
+
+.skeleton-generic {
+  padding: get-spacing(sm);
+}
+
+.skeleton-line {
+  height: 16px;
+  margin-bottom: get-spacing(sm);
+}
+
+.skeleton-line:nth-child(1) { width: 100%; }
+.skeleton-line:nth-child(2) { width: 85%; }
+.skeleton-line:nth-child(3) { width: 70%; }
+.skeleton-line:last-child { margin-bottom: 0; }
+
+@media (max-width: 768px) {
+  .skeleton-train-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: get-spacing(md);
+  }
+  
+  .skeleton-status {
+    align-self: flex-end;
+  }
+}

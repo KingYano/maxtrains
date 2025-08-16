@@ -1,0 +1,254 @@
+@import '~/assets/scss/variables';
+
+.page-title {
+  text-align: center;
+  font-size: get-font-size(xxxl);
+  color: get-color(primary);
+  margin-bottom: get-spacing(md);
+  font-weight: 700;
+}
+
+.page-subtitle {
+  text-align: center;
+  font-size: get-font-size(lg);
+  color: get-color(text-secondary);
+  margin-bottom: get-spacing(xl);
+  font-weight: 500;
+}
+
+.search-title {
+  font-size: get-font-size(xxl);
+  margin-bottom: get-spacing(lg);
+}
+
+.form-row {
+  display: flex;
+  gap: get-spacing(lg);
+  margin-bottom: get-spacing(lg);
+}
+
+.form-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-search {
+  width: 100%;
+}
+
+.results-container {
+  display: flex;
+  gap: get-spacing(xl);
+  align-items: flex-start;
+}
+
+.results-map {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-list {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-section {
+  scroll-margin-top: 100px;
+  
+  .card {
+    margin-bottom: 0;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+}
+
+.results-header {
+  font-size: get-font-size(xxl);
+  margin-bottom: get-spacing(md);
+  display: flex;
+  align-items: center;
+  gap: get-spacing(sm);
+}
+
+.results-summary {
+  color: get-color(text-secondary);
+  margin-bottom: get-spacing(md);
+  font-weight: 500;
+}
+
+.destination-section {
+  margin-bottom: get-spacing(xl);
+  scroll-margin-top: 100px;
+  transition: all 0.3s ease;
+  
+  &.highlight-destination {
+    background: get-color(success-bg);
+    border-radius: get-radius(md);
+    padding: get-spacing(md);
+    border: 2px solid get-color(primary);
+    transform: scale(1.02);
+  }
+}
+
+.destination-title {
+  font-size: get-font-size(xl);
+  font-weight: 600;
+  margin-bottom: get-spacing(md);
+  color: get-color(primary);
+  border-bottom: 2px solid get-color(border-color);
+  padding-bottom: get-spacing(sm);
+  display: flex;
+  align-items: center;
+  gap: get-spacing(sm);
+}
+
+.trains-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.train-card {
+  background: get-color(bg-primary);
+  border: 1px solid get-color(border-color);
+  border-radius: get-radius(md);
+  padding: get-spacing(lg);
+  margin-bottom: get-spacing(md);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  
+  &:hover {
+    background: get-color(bg-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:focus {
+    outline: 2px solid get-color(primary);
+    outline-offset: 2px;
+  }
+}
+
+.train-main {
+  display: flex;
+  align-items: center;
+  gap: get-spacing(md);
+}
+
+.train-number {
+  font-weight: 600;
+  font-size: get-font-size(base);
+  color: get-color(text-primary);
+  min-width: 60px;
+}
+
+.train-schedule {
+  flex: 1;
+  font-size: get-font-size(base);
+  color: get-color(text-primary);
+  font-weight: 500;
+}
+
+.train-status {
+  display: flex;
+  align-items: center;
+}
+
+.train-duration {
+  font-size: get-font-size(base);
+  color: get-color(text-secondary);
+  font-weight: 500;
+  min-width: 60px;
+  text-align: right;
+}
+
+.status-badge {
+  padding: get-spacing(xs) get-spacing(sm);
+  border-radius: get-radius(base);
+  font-size: get-font-size(xs);
+  font-weight: 600;
+  color: white;
+  
+  &.available {
+    background-color: get-status-color(available);
+  }
+  
+  &.limited {
+    background-color: get-status-color(limited);
+  }
+  
+  &.full {
+    background-color: get-status-color(full);
+  }
+}
+
+
+.empty-state {
+  text-align: center;
+  padding: get-spacing(xxl);
+  
+  .empty-content {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: get-color(text-muted);
+    margin-bottom: get-spacing(md);
+  }
+  
+  h3 {
+    font-size: get-font-size(xl);
+    color: get-color(text-primary);
+    margin-bottom: get-spacing(sm);
+  }
+  
+  p {
+    color: get-color(text-secondary);
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 1024px) {
+  .results-container {
+    flex-direction: column;
+    gap: get-spacing(lg);
+  }
+  
+  .results-map,
+  .results-list {
+    flex: none;
+    width: 100%;
+  }
+  
+  .results-list .card {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: get-spacing(md);
+  }
+  
+  .form-field {
+    flex: none;
+    width: 100%;
+  }
+  
+  .destination-section {
+    scroll-margin-top: 80px;
+  }
+  
+  .results-section {
+    scroll-margin-top: 80px;
+  }
+  
+  .results-container {
+    gap: get-spacing(md);
+  }
+  
+}

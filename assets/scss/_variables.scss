@@ -1,0 +1,86 @@
+$colors: (
+  primary: #10b981,
+  primary-hover: #059669,
+  secondary: #6b7280,
+  accent: #3b82f6,
+  
+  success: #10b981,
+  success-bg: rgba(16, 185, 129, 0.1),
+  warning: #f59e0b,
+  warning-bg: rgba(245, 158, 11, 0.1),
+  error: #ef4444,
+  error-bg: rgba(239, 68, 68, 0.1),
+  
+  text-primary: var(--text-primary),
+  text-secondary: var(--text-secondary),
+  text-muted: var(--text-muted),
+  
+  bg-primary: var(--bg-primary),
+  bg-secondary: var(--bg-secondary),
+  bg-hover: var(--bg-hover),
+  
+  border-color: var(--border-color),
+);
+
+$spacing: (
+  xs: 0.25rem,
+  sm: 0.5rem,
+  md: 1rem,
+  lg: 1.5rem,
+  xl: 2rem,
+  xxl: 3rem,
+);
+
+$font-sizes: (
+  xs: 0.75rem,
+  sm: 0.85rem,
+  base: 0.9rem,
+  md: 1rem,
+  lg: 1.1rem,
+  xl: 1.2rem,
+  xxl: 1.5rem,
+  xxxl: 2.5rem,
+);
+
+$border-radius: (
+  sm: 4px,
+  base: 6px,
+  md: 8px,
+  lg: 12px,
+);
+
+$status-colors: (
+  available: #10b981,
+  limited: #f59e0b,
+  full: #ef4444,
+);
+
+$z-indexes: (
+  header: 1100,
+  modal: 2000,
+  tooltip: 3000,
+);
+
+@function get-color($name) {
+  @return map-get($colors, $name);
+}
+
+@function get-spacing($name) {
+  @return map-get($spacing, $name);
+}
+
+@function get-font-size($name) {
+  @return map-get($font-sizes, $name);
+}
+
+@function get-radius($name) {
+  @return map-get($border-radius, $name);
+}
+
+@function get-status-color($name) {
+  @return map-get($status-colors, $name);
+}
+
+@function get-z-index($name) {
+  @return map-get($z-indexes, $name);
+}

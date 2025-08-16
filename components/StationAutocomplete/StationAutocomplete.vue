@@ -1,5 +1,5 @@
 <template>
-  <div class="autocomplete-container" style="position: relative;">
+  <div class="autocomplete-container">
     <input
       ref="inputRef"
       v-model="searchQuery"
@@ -19,7 +19,6 @@
       @keydown.escape="hideSuggestions"
     />
 
-    <!-- Loading indicator -->
     <div v-if="loading" id="autocomplete-status" class="autocomplete-loading" aria-live="polite">
       <i class="ri-loader-5-line animate-spin" aria-hidden="true"></i>
       Recherche...
@@ -56,11 +55,10 @@
         </div>
 
         <div v-if="filteredStations.length === 0 && searchQuery.length >= 2" class="no-results" role="status" aria-live="polite">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="no-results-content">
             <i class="ri-alert-line" aria-hidden="true"></i>
             Aucune gare trouvée
           </div>
-          <small>Essayez "Paris", "Lyon", "Marseille"...</small>
         </div>
       </template>
     </div>
@@ -94,15 +92,13 @@ const stations = ref([])
 let debounceTimeout = null
 
 const filteredStations = computed(() => {
-  return stations.value.slice(0, 8) // Limite à 8 suggestions
+  return stations.value.slice(0, 8)
 })
 
-// Watch modelValue changes
 watch(() => props.modelValue, (newValue) => {
   searchQuery.value = newValue
 })
 
-// Emit modelValue changes
 watch(searchQuery, (newValue) => {
   emit('update:modelValue', newValue)
 })
@@ -110,7 +106,6 @@ watch(searchQuery, (newValue) => {
 const handleInput = () => {
   selectedIndex.value = -1
   
-  // Debounce API calls
   if (debounceTimeout) {
     clearTimeout(debounceTimeout)
   }
@@ -124,7 +119,7 @@ const handleInput = () => {
   showSuggestions.value = true
   debounceTimeout = setTimeout(() => {
     searchStations()
-  }, 150) // Attendre 150ms après la dernière frappe
+  }, 150)
 }
 
 const searchStations = async () => {
@@ -150,7 +145,6 @@ const searchStations = async () => {
   } catch (error) {
     console.error('Erreur recherche gares:', error)
     stations.value = []
-    // Garder showSuggestions à true pour afficher "Aucune gare trouvée"
   } finally {
     loading.value = false
   }
@@ -183,7 +177,6 @@ const selectStationFromList = (station) => {
   
   emit('stationSelected', station)
   
-  // Remove focus
   if (inputRef.value) {
     inputRef.value.blur()
   }
@@ -194,7 +187,6 @@ const hideSuggestions = () => {
   selectedIndex.value = -1
 }
 
-// Click outside to hide
 onMounted(() => {
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.autocomplete-container')) {
@@ -204,81 +196,6 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.autocomplete-container {
-  position: relative;
-  width: 100%;
-}
-
-
-.autocomplete-suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-top: none;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  max-height: 300px;
-  overflow-y: auto;
-  z-index: 1000;
-  backdrop-filter: blur(20px);
-  overflow-x: hidden;
-}
-
-.autocomplete-suggestion {
-  padding: 16px 20px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.autocomplete-suggestion:hover,
-.autocomplete-suggestion.selected {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  transform: translateX(4px);
-}
-
-.autocomplete-suggestion.selected {
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border-left: 3px solid #10b981;
-}
-
-.station-info {
-  flex: 1;
-}
-
-.station-name {
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 2px;
-}
-
-.station-details {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.station-icon {
-  font-size: 18px;
-  opacity: 0.6;
-}
-
-.no-results {
-  padding: 16px;
-  text-align: center;
-  color: #6b7280;
-}
-
-.no-results small {
-  color: #9ca3af;
-  display: block;
-  margin-top: 4px;
-}
+<style lang="scss" scoped>
+@import './StationAutocomplete.scss';
 </style>

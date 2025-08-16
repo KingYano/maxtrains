@@ -1,0 +1,45 @@
+@import '~/assets/scss/variables';
+
+.map-container {
+  margin-bottom: get-spacing(xl);
+}
+
+.map-title {
+  font-size: get-font-size(xxl);
+  margin-bottom: get-spacing(md);
+  display: flex;
+  align-items: center;
+  gap: get-spacing(sm);
+  color: get-color(text-primary);
+}
+
+.map {
+  height: 500px;
+  width: 100%;
+  border-radius: get-radius(md);
+  overflow: hidden;
+}
+
+:global(.leaflet-bottom.leaflet-right) {
+  transform: scale(0.8);
+  transform-origin: bottom right;
+}
+
+:global(.leaflet-control-attribution) {
+  font-size: 10px !important;
+  padding: 2px 4px !important;
+}
+
+@media (max-width: 768px) {
+  .map {
+    height: 300px;
+  }
+  
+  .map-title {
+    font-size: get-font-size(xl);
+  }
+  
+  :global(.leaflet-bottom.leaflet-right) {
+    transform: scale(0.7);
+  }
+}

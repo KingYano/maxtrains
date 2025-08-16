@@ -1,9 +1,8 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@pinia/nuxt'],
-  css: ['~/assets/css/main.css', 'remixicon/fonts/remixicon.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/map-styles.css', 'remixicon/fonts/remixicon.css', 'leaflet/dist/leaflet.css'],
   ssr: false,
   app: {
     head: {

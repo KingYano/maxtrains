@@ -1,21 +1,16 @@
 import type { SearchParams, TGVMaxAvailability } from '~/types/tgvmax'
 
-// 🏪 STORE = définir un magasin de données
 export const useSearchStore = defineStore('search', () => {
   
-  // 📦 STATE = les données stockées (comme un ref global)
   const searchHistory = ref<SearchParams[]>([])
   const currentResults = ref<TGVMaxAvailability[]>([])
   const isSearching = ref(false)
   const lastSearchParams = ref<SearchParams | null>(null)
   
-  // 🧮 GETTERS = données calculées (comme un computed global)
   const hasHistory = computed(() => searchHistory.value.length > 0)
   const resultsCount = computed(() => currentResults.value.length)
   
-  // ⚡ ACTIONS = méthodes pour modifier les données
   const addToHistory = (params: SearchParams) => {
-    // Évite les doublons
     const exists = searchHistory.value.find(
       h => h.departureStation === params.departureStation && 
            h.date === params.date &&
@@ -23,9 +18,8 @@ export const useSearchStore = defineStore('search', () => {
     )
     
     if (!exists) {
-      searchHistory.value.unshift(params) // Ajoute au début
+      searchHistory.value.unshift(params)
       
-      // Limite à 10 recherches max
       if (searchHistory.value.length > 10) {
         searchHistory.value.pop()
       }
@@ -52,7 +46,6 @@ export const useSearchStore = defineStore('search', () => {
     searchHistory.value.splice(index, 1)
   }
   
-  // 💾 PERSISTANCE = sauvegarder dans localStorage
   const saveToStorage = () => {
     if (process.client) {
       localStorage.setItem('maxtrains-search-history', JSON.stringify(searchHistory.value))
@@ -72,19 +65,15 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
   
-  // 🎯 RETOUR = expose tout ce qui est public
   return {
-    // State (lecture/écriture)
     searchHistory,
     currentResults,
     isSearching,
     lastSearchParams,
     
-    // Getters (lecture seule)
     hasHistory,
     resultsCount,
     
-    // Actions (méthodes)
     addToHistory,
     setResults,
     setSearching,

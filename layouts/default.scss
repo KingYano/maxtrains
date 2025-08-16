@@ -1,0 +1,10 @@
+@import '~/assets/scss/variables';
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: get-z-index(header);
+  background: get-color(bg-primary);
+  border-bottom: 1px solid get-color(border-color);
+  backdrop-filter: blur(8px);
+}

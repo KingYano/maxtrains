@@ -1,96 +1,93 @@
 <template>
   <div>
     <section class="card">
-      <h1 style="text-align: center; font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; font-weight: 700;">
+      <h1 class="page-title">
         Trouvez vos places TGVmax en temps réel
       </h1>
-      <p style="text-align: center; font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2rem; font-weight: 500;">
+      <p class="page-subtitle">
         Vérifiez les disponibilités TGVmax instantanément sur toutes les lignes françaises
       </p>
     </section>
 
-    <!-- 🍍 HISTORIQUE PINIA - Seulement si il y en a -->
     <SearchHistory 
       @select-history="fillFromHistory"
     />
 
     <section class="card">
-      <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">
-        Rechercher les trains TGVmax gratuits (0€)
+      <h2 class="search-title">
+        Rechercher les trains TGVmax
       </h2>
       
       <form @submit.prevent="handleSearch">
-        <div style="margin-bottom: 1.5rem;">
-          <label for="departure-station" class="form-label">
-            <i class="ri-train-line" aria-hidden="true"></i> Gare de départ *
-          </label>
-          <StationAutocomplete
-            v-model="searchParams.departureStation"
-            placeholder="Ex. : Paris, Lyon, Le Creusot"
-          :class="{ 'error': formErrors.departureStation }"
-            :aria-describedby="formErrors.departureStation ? 'departure-error' : undefined"
-            :required="true"
-            @station-selected="onDepartureSelected"
-            @blur="validateDepartureStation"
-          />
-          <ClientOnly>
-            <div v-if="formErrors.departureStation" id="departure-error" class="error-message" role="alert">
-              <i class="ri-error-warning-line" aria-hidden="true"></i>
-              {{ formErrors.departureStation }}
-            </div>
-          </ClientOnly>
-        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="departure-station" class="form-label">
+              <i class="ri-train-line" aria-hidden="true"></i> Gare de départ *
+            </label>
+            <StationAutocomplete
+              v-model="searchParams.departureStation"
+              placeholder="Ex. : Paris, Lyon, Le Creusot"
+            :class="{ 'error': formErrors.departureStation }"
+              :aria-describedby="formErrors.departureStation ? 'departure-error' : undefined"
+              :required="true"
+              @station-selected="onDepartureSelected"
+              @blur="validateDepartureStation"
+            />
+            <ClientOnly>
+              <div v-if="formErrors.departureStation" id="departure-error" class="error-message" role="alert">
+                <i class="ri-error-warning-line" aria-hidden="true"></i>
+                {{ formErrors.departureStation }}
+              </div>
+            </ClientOnly>
+          </div>
 
-        <div style="margin-bottom: 1.5rem;">
-          <label for="travel-date" class="form-label">
-            <i class="ri-calendar-line" aria-hidden="true"></i> Date *
-          </label>
-          <input
-            id="travel-date"
-            v-model="searchParams.date"
-            :class="['input-field', { 'error': formErrors.date }]"
-            type="date"
-            :min="today"
-            :aria-describedby="formErrors.date ? 'date-error' : undefined"
-            aria-required="true"
-            @blur="validateDate"
-          />
-          <ClientOnly>
-            <div v-if="formErrors.date" id="date-error" class="error-message" role="alert">
-              <i class="ri-error-warning-line" aria-hidden="true"></i>
-              {{ formErrors.date }}
-            </div>
-          </ClientOnly>
-        </div>
+          <div class="form-field">
+            <label for="travel-date" class="form-label">
+              <i class="ri-calendar-line" aria-hidden="true"></i> Date *
+            </label>
+            <input
+              id="travel-date"
+              v-model="searchParams.date"
+              :class="['input-field', { 'error': formErrors.date }]"
+              type="date"
+              :min="today"
+              :aria-describedby="formErrors.date ? 'date-error' : undefined"
+              aria-required="true"
+              @blur="validateDate"
+            />
+            <ClientOnly>
+              <div v-if="formErrors.date" id="date-error" class="error-message" role="alert">
+                <i class="ri-error-warning-line" aria-hidden="true"></i>
+                {{ formErrors.date }}
+              </div>
+            </ClientOnly>
+          </div>
 
-        <div style="margin-bottom: 1.5rem;">
-          <label for="arrival-station" class="form-label">
-            <i class="ri-map-pin-line" aria-hidden="true"></i> Destination (optionnel)
-          </label>
-          <small style="color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">
-            Laissez vide pour voir tous les trains disponibles
-          </small>
-          <StationAutocomplete
-            v-model="searchParams.arrivalStation"
-            placeholder="Destination (optionnel)..."
-            aria-describedby="arrival-help"
-            @station-selected="onArrivalSelected"
-          />
-          <div id="arrival-help" class="sr-only">
-            Champ optionnel pour filtrer par destination
+          <div class="form-field">
+            <label for="arrival-station" class="form-label">
+              <i class="ri-map-pin-line" aria-hidden="true"></i> Destination (optionnel)
+            </label>
+            <StationAutocomplete
+              v-model="searchParams.arrivalStation"
+              placeholder="Destination (optionnel)..."
+              aria-describedby="arrival-help"
+              @station-selected="onArrivalSelected"
+            />
+            <div id="arrival-help" class="sr-only">
+              Champ optionnel pour filtrer par destination
+            </div>
           </div>
         </div>
 
         <button
           type="submit"
-          class="btn-primary"
+          class="btn-primary btn-search"
           :disabled="!isFormValid || searching"
           :aria-describedby="!isFormValid ? 'form-validation-help' : undefined"
-          style="width: 100%;"
         >
           <i v-if="searching" class="ri-loader-5-line animate-spin" aria-hidden="true"></i>
           <i v-else class="ri-search-line" aria-hidden="true"></i>
-          {{ searching ? 'Recherche en cours...' : 'Rechercher les trains gratuits' }}
+          {{ searching ? 'Recherche en cours...' : 'Rechercher les trains' }}
         </button>
         <div v-if="!isFormValid" id="form-validation-help" class="sr-only">
           Veuillez remplir tous les champs obligatoires pour effectuer la recherche
@@ -109,69 +106,62 @@
         </div>
       </section>
 
-      <section v-else-if="searchResults.length > 0" class="card" role="region" aria-labelledby="results-heading">
-        <h2 id="results-heading" style="font-size: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i class="ri-train-line" aria-hidden="true"></i> Trains TGVmax gratuits
+      <div v-if="searchResults.length > 0" class="results-container">
+        <div class="results-map">
+          <MapView 
+            :search-results="searchResults"
+            :grouped-results="groupedResults"
+            @destination-selected="scrollToDestination"
+          />
+        </div>
+        
+        <div class="results-list">
+          <section class="card results-section" role="region" aria-labelledby="results-heading">
+        <h2 id="results-heading" class="results-header">
+          <i class="ri-train-line" aria-hidden="true"></i> Trains TGVmax
         </h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-weight: 500;">
+        <p class="results-summary">
           {{ destinationsCount }} destinations • {{ totalTrainsCount }} trains disponibles depuis {{ searchParams.departureStation }}
         </p>
         
-        <div v-for="destination in Object.keys(groupedResults).sort()" :key="destination" style="margin-bottom: 2rem;">
-          <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary-color); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <div v-for="destination in Object.keys(groupedResults).sort()" :key="destination" :id="`destination-${destination.replace(/\s+/g, '-').toLowerCase()}`" class="destination-section">
+          <h3 class="destination-title">
             <i class="ri-map-pin-line" aria-hidden="true"></i> {{ destination }} ({{ groupedResults[destination].length }} trains)
           </h3>
           
-          <ul role="list" style="list-style: none; padding: 0; margin: 0;">
+          <ul role="list" class="trains-list">
             <li v-for="train in groupedResults[destination]" :key="train.trainId">
               <div class="train-card" tabindex="0">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-              <div style="flex: 1;">
-                <h4 style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                  <i class="ri-train-line"></i> {{ train.trainId }} • <i class="ri-time-line"></i>
-                  {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime) }}
-                </h4>
-                <p style="color: #6b7280; font-size: 0.9rem; margin: 0.5rem 0; display: flex; align-items: center; gap: 1rem;">
-                  <span style="display: flex; align-items: center; gap: 0.25rem;">
+                <div class="train-main">
+                  <div class="train-number">
+                    <i class="ri-train-line"></i> {{ train.trainId }}
+                  </div>
+                  <div class="train-schedule">
+                    <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime) }}
+                  </div>
+                  <div class="train-status">
+                    <span :class="['status-badge', train.status]">
+                      {{ getStatusText(train.status) }}
+                    </span>
+                  </div>
+                  <div class="train-duration">
                     <i class="ri-timer-line"></i> {{ train.duration }}
-                  </span>
-                  <span style="display: flex; align-items: center; gap: 0.25rem;">
-                    <i class="ri-user-line"></i> {{ train.availableSeats }}
-                  </span>
-                </p>
-              </div>
-              
-              <div style="display: flex; align-items: center; gap: 1rem;">
-                <span 
-                  class="status-badge"
-                  :style="{
-                    backgroundColor: getStatusColor(train.status),
-                    color: 'white'
-                  }"
-                >
-                  {{ getStatusText(train.status) }}
-                </span>
-                
-                <div style="text-align: right;">
-                  <div style="font-size: 0.75rem; color: #9ca3af;">
-                    TGVmax 0€
                   </div>
                 </div>
               </div>
-              </div>
-            </div>
             </li>
           </ul>
         </div>
       </section>
+        </div>
+      </div>
     </ClientOnly>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { format } from 'date-fns'
 
-// 🍍 PINIA STORE - État global
 const searchStore = useSearchStore()
 
 useHead({
@@ -180,7 +170,6 @@ useHead({
 
 const today = format(new Date(), 'yyyy-MM-dd')
 
-// 📦 STATE LOCAL - Seulement pour le formulaire
 const searchParams = reactive({
   departureStation: '',
   arrivalStation: '',
@@ -190,16 +179,13 @@ const searchParams = reactive({
 const selectedDepartureStation = ref(null)
 const selectedArrivalStation = ref(null)
 
-// 🍍 STATE GLOBAL - Via Pinia store
 const { isSearching: searching, currentResults: searchResults } = storeToRefs(searchStore)
 const hasSearched = ref(false)
 
-// 💾 CHARGER L'HISTORIQUE au montage
 onMounted(() => {
   searchStore.loadFromStorage()
 })
 
-// Validation d'état
 const formErrors = reactive({
   departureStation: '',
   date: ''
@@ -242,7 +228,6 @@ const groupedResults = computed(() => {
     return acc
   }, {})
   
-  // Trier chaque groupe par heure de départ
   Object.keys(grouped).forEach(destination => {
     grouped[destination].sort((a, b) => new Date(a.departureTime).getTime() - new Date(b.departureTime).getTime())
   })
@@ -270,12 +255,10 @@ const { showSuccess, showError } = useToast()
 const handleSearch = async () => {
   if (!isFormValid.value) return
 
-  // 🍍 UTILISER LE STORE au lieu du state local
   searchStore.setSearching(true)
   searchStore.setResults([])
   hasSearched.value = true
 
-  // 💾 SAUVEGARDER dans l'historique
   const currentSearch = {
     departureStation: searchParams.departureStation,
     arrivalStation: searchParams.arrivalStation,
@@ -283,7 +266,7 @@ const handleSearch = async () => {
   }
   searchStore.addToHistory(currentSearch)
   searchStore.setLastSearch(currentSearch)
-  searchStore.saveToStorage() // Persister en localStorage
+  searchStore.saveToStorage()
 
   try {
     const { data } = await $fetch('/api/tgvmax/search', {
@@ -295,7 +278,6 @@ const handleSearch = async () => {
       }
     })
 
-    // 🍍 STOCKER les résultats dans le store
     searchStore.setResults(data)
     
     if (data.length > 0) {
@@ -307,7 +289,6 @@ const handleSearch = async () => {
     console.error('Erreur lors de la recherche:', error)
     showError('Erreur de recherche', 'Impossible de récupérer les données. Veuillez réessayer dans quelques instants.')
   } finally {
-    // 🍍 TERMINER le loading via le store
     searchStore.setSearching(false)
   }
 }
@@ -325,21 +306,33 @@ const getStatusText = (status) => {
   return statusMap[status] || status
 }
 
-const getStatusColor = (status) => {
-  const colorMap = {
-    available: '#10b981',
-    limited: '#f59e0b',
-    full: '#ef4444'
-  }
-  return colorMap[status] || '#6b7280'
-}
 
-// 🍍 MÉTHODES POUR L'HISTORIQUE
 const fillFromHistory = (historyItem) => {
   searchParams.departureStation = historyItem.departureStation
   searchParams.arrivalStation = historyItem.arrivalStation || ''
   searchParams.date = historyItem.date
 }
 
+const scrollToDestination = (destination: string) => {
+  const elementId = `destination-${destination.replace(/\s+/g, '-').toLowerCase()}`
+  const element = document.getElementById(elementId)
+  
+  if (element) {
+    element.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    })
+    
+    element.classList.add('highlight-destination')
+    setTimeout(() => {
+      element.classList.remove('highlight-destination')
+    }, 2000)
+  }
+}
+
 
 </script>
+
+<style lang="scss" scoped>
+@import './index.scss';
+</style>

@@ -1,4 +1,3 @@
-// État global partagé
 const isDark = ref(false)
 
 const updateTheme = () => {
@@ -29,7 +28,6 @@ const initializeDarkMode = () => {
     isDark.value = savedTheme ? savedTheme === 'true' : prefersDark
     updateTheme()
 
-    // Écouter les changements de préférence système
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       if (!localStorage.getItem('maxtrains-dark-mode')) {
         isDark.value = e.matches
