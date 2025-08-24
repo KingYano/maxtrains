@@ -61,26 +61,28 @@ $z-indexes: (
   tooltip: 3000,
 );
 
+@use 'sass:map';
+
 @function get-color($name) {
-  @return map-get($colors, $name);
+  @return map.get($colors, $name);
 }
 
 @function get-spacing($name) {
-  @return map-get($spacing, $name);
+  @return map.get($spacing, $name);
 }
 
 @function get-font-size($name) {
-  @return map-get($font-sizes, $name);
+  @return map.get($font-sizes, $name);
 }
 
 @function get-radius($name) {
-  @return map-get($border-radius, $name);
+  @return map.get($border-radius, $name);
 }
 
 @function get-status-color($name) {
-  @return map-get($status-colors, $name);
+  @return map.get($status-colors, $name);
 }
 
 @function get-z-index($name) {
-  @return map-get($z-indexes, $name);
+  @return map.get($z-indexes, $name);
 }

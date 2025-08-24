@@ -13,9 +13,9 @@
 </template>
 
 <script setup>
-const { isDark, toggleDarkMode } = useDarkMode()
+  const { isDark, toggleDarkMode } = useDarkMode()
 </script>
 
 <style lang="scss" scoped>
-@import './DarkModeToggle.scss';
+  @use './DarkModeToggle.scss';
 </style>

@@ -1,11 +1,19 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const searchQuery = query.q as string
+  const searchQuery = query.q
   
-  if (!searchQuery || searchQuery.length < 2) {
+  // Validation des inputs
+  if (!searchQuery || typeof searchQuery !== 'string') {
     return {
       stations: [],
-      error: 'Query too short'
+      error: 'Paramètre de recherche manquant'
+    }
+  }
+  
+  if (searchQuery.length < 2 || searchQuery.length > 50) {
+    return {
+      stations: [],
+      error: 'Recherche doit contenir entre 2 et 50 caractères'
     }
   }
 

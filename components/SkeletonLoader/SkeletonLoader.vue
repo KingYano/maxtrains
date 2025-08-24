@@ -37,20 +37,15 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  type: {
-    type: String,
-    default: 'generic',
-    validator: (value) => ['search-results', 'autocomplete', 'generic'].includes(value)
-  },
-  count: {
-    type: Number,
-    default: 3
-  }
-})
+<script setup lang="ts">
+  import type { SkeletonLoaderProps } from '~/types/skeleton'
+
+  withDefaults(defineProps<SkeletonLoaderProps>(), {
+    type: 'search-results',
+    count: 3
+  })
 </script>
 
 <style lang="scss" scoped>
-@import './SkeletonLoader.scss';
+  @use './SkeletonLoader.scss';
 </style>

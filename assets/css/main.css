@@ -23,6 +23,10 @@
   
   --success-color: #10b981;
   --success-bg: rgba(16, 185, 129, 0.1);
+  
+  --skeleton-color-1: #f0f0f0;
+  --skeleton-color-2: #e0e0e0;
+  --skeleton-color-3: #f0f0f0;
 }
 
 .dark {
@@ -43,6 +47,10 @@
   
   --error-bg: rgba(239, 68, 68, 0.2);
   --success-bg: rgba(16, 185, 129, 0.2);
+  
+  --skeleton-color-1: #374151;
+  --skeleton-color-2: #4b5563;
+  --skeleton-color-3: #374151;
 }
 
 * {

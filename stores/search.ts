@@ -59,7 +59,7 @@ export const useSearchStore = defineStore('search', () => {
         try {
           searchHistory.value = JSON.parse(saved)
         } catch (error) {
-          console.warn('Erreur chargement historique:', error)
+          // Error loading search history from localStorage
         }
       }
     }

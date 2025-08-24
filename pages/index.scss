@@ -1,4 +1,4 @@
-@import '~/assets/scss/variables';
+@use '~/assets/scss/variables' as *;
 
 .page-title {
   text-align: center;
@@ -36,10 +36,30 @@
   width: 100%;
 }
 
+.search-info {
+  margin-top: get-spacing(md);
+  padding: get-spacing(sm) get-spacing(md);
+  background: get-color(bg-secondary);
+  border: 1px solid get-color(border-color);
+  border-radius: get-radius(md);
+  font-size: get-font-size(sm);
+  color: get-color(text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: get-spacing(sm);
+  
+  i {
+    color: get-color(primary);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
 .results-container {
   display: flex;
   gap: get-spacing(xl);
   align-items: flex-start;
+  min-height: 600px;
 }
 
 .results-map {
@@ -54,11 +74,26 @@
 
 .results-section {
   scroll-margin-top: 100px;
+  margin-bottom: 0;
+  max-height: 950px;
+  overflow-y: auto;
   
-  .card {
-    margin-bottom: 0;
-    max-height: 600px;
-    overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--text-muted);
+    }
   }
 }
 
@@ -80,6 +115,13 @@
   margin-bottom: get-spacing(xl);
   scroll-margin-top: 100px;
   transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: get-radius(md);
+  padding: get-spacing(sm);
+  
+  &:hover {
+    background: get-color(bg-hover);
+  }
   
   &.highlight-destination {
     background: get-color(success-bg);
@@ -125,8 +167,8 @@
   
   &:focus {
     outline: 2px solid get-color(primary);
-    outline-offset: 2px;
   }
+  
 }
 
 .train-main {
@@ -162,6 +204,31 @@
   text-align: right;
 }
 
+
+.booking-link {
+  display: inline-flex;
+  align-items: center;
+  gap: get-spacing(xs);
+  padding: get-spacing(xs) get-spacing(sm);
+  background: get-status-color(available);
+  color: white;
+  border-radius: get-radius(base);
+  font-size: get-font-size(xs);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: get-color(primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+  }
+  
+  i {
+    font-size: get-font-size(xs);
+  }
+}
+
 .status-badge {
   padding: get-spacing(xs) get-spacing(sm);
   border-radius: get-radius(base);
@@ -169,16 +236,25 @@
   font-weight: 600;
   color: white;
   
-  &.available {
-    background-color: get-status-color(available);
-  }
-  
   &.limited {
     background-color: get-status-color(limited);
   }
   
   &.full {
     background-color: get-status-color(full);
+  }
+}
+
+.missing-station-notice {
+  color: get-color(text-muted);
+  font-size: get-font-size(sm);
+  padding: get-spacing(sm) 0;
+  display: flex;
+  align-items: center;
+  gap: get-spacing(xs);
+  
+  i { 
+    opacity: 0.6; 
   }
 }
 
@@ -214,6 +290,7 @@
   .results-container {
     flex-direction: column;
     gap: get-spacing(lg);
+    min-height: auto;
   }
   
   .results-map,
@@ -222,9 +299,27 @@
     width: 100%;
   }
   
-  .results-list .card {
-    max-height: none;
-    overflow-y: visible;
+  .results-section {
+    max-height: 700px;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+      
+      &:hover {
+        background: var(--text-muted);
+      }
+    }
   }
 }
 

@@ -36,5 +36,19 @@ export default defineNuxtConfig({
       sncfApiUrl: 'https://api.sncf.com/v1/',
       openDataSoftUrl: 'https://ressources.data.sncf.com/api/v2/catalog/datasets/referentiel-gares-voyageurs/records'
     }
+  },
+  
+  // Headers de sécurité
+  nitro: {
+    routeRules: {
+      '/**': {
+        headers: {
+          'X-Frame-Options': 'DENY',
+          'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://ressources.data.sncf.com; font-src 'self' data:",
+        }
+      }
+    }
   }
 })

@@ -41,40 +41,76 @@
       </div>
     </div>
   </div>
+
+  <Modal
+    :visible="showRemoveModal"
+    title="Supprimer de l'historique"
+    message="Êtes-vous sûr de vouloir supprimer cette recherche de l'historique ?"
+    confirm-text="Supprimer"
+    cancel-text="Annuler"
+    @close="showRemoveModal = false"
+    @confirm="confirmRemove"
+  />
+
+  <Modal
+    :visible="showClearModal"
+    title="Vider l'historique"
+    message="Êtes-vous sûr de vouloir supprimer tout l'historique ? Cette action est irréversible."
+    confirm-text="Tout supprimer"
+    cancel-text="Annuler"
+    @close="showClearModal = false"
+    @confirm="confirmClear"
+  />
 </template>
 
 <script setup lang="ts">
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import type { SearchParams } from '~/types/tgvmax'
+  import { format } from 'date-fns'
+  import { fr } from 'date-fns/locale'
+  import type { SearchParams } from '~/types/tgvmax'
 
-const searchStore = useSearchStore()
+  const searchStore = useSearchStore()
 
-defineEmits<{
-  selectHistory: [search: SearchParams]
-}>()
+  import type { SearchHistoryEmits } from '~/types/autocomplete'
 
-const formatDate = (dateString: string) => {
-  try {
-    return format(new Date(dateString), 'dd MMM yyyy', { locale: fr })
-  } catch {
-    return dateString
+  defineEmits<SearchHistoryEmits>()
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'dd MMM yyyy', { locale: fr })
+    } catch {
+      return dateString
+    }
   }
-}
 
-const removeFromHistory = (index: number) => {
-  searchStore.removeFromHistory(index)
-  searchStore.saveToStorage()
-}
+  const showRemoveModal = ref(false)
+  const showClearModal = ref(false)
+  const itemToRemove = ref<number | null>(null)
 
-const clearHistory = () => {
-  if (confirm('Êtes-vous sûr de vouloir effacer tout l\'historique ?')) {
+  const removeFromHistory = (index: number) => {
+    itemToRemove.value = index
+    showRemoveModal.value = true
+  }
+
+  const confirmRemove = () => {
+    if (itemToRemove.value !== null) {
+      searchStore.removeFromHistory(itemToRemove.value)
+      searchStore.saveToStorage()
+    }
+    showRemoveModal.value = false
+    itemToRemove.value = null
+  }
+
+  const clearHistory = () => {
+    showClearModal.value = true
+  }
+
+  const confirmClear = () => {
     searchStore.clearHistory()
     searchStore.saveToStorage()
+    showClearModal.value = false
   }
-}
 </script>
 
 <style lang="scss" scoped>
-@import './SearchHistory.scss';
+  @use './SearchHistory.scss';
 </style>

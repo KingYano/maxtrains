@@ -1,9 +1,21 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const stationNames = body.stations as string[]
+  const stationNames = body.stations
   
+  // Validation des inputs
   if (!stationNames || !Array.isArray(stationNames)) {
     return { coordinates: {} }
+  }
+  
+  
+  // Vérifier que chaque station est une string
+  for (const station of stationNames) {
+    if (typeof station !== 'string' || station.length > 100) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Nom de gare invalide'
+      })
+    }
   }
 
   const staticCoordinates: Record<string, { lat: number; lng: number }> = {

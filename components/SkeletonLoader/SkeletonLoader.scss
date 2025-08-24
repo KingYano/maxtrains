@@ -1,11 +1,11 @@
-@import '~/assets/scss/variables';
+@use '~/assets/scss/variables' as *;
 
 .skeleton-container {
   width: 100%;
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--skeleton-color-1) 25%, var(--skeleton-color-2) 50%, var(--skeleton-color-3) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: get-radius(xs);
@@ -22,7 +22,7 @@
 
 .skeleton-search-results {
   padding: get-spacing(lg);
-  background: white;
+  background: var(--bg-primary);
   border-radius: get-radius(xl);
   margin-bottom: get-spacing(md);
 }
@@ -59,8 +59,8 @@
   align-items: center;
   padding: get-spacing(md);
   margin-bottom: get-spacing(sm);
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid get-color(border-color);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: get-radius(lg);
 }
 
@@ -112,7 +112,7 @@
 
 .skeleton-autocomplete-item {
   padding: get-spacing(sm) get-spacing(md);
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .skeleton-autocomplete-item:last-child {

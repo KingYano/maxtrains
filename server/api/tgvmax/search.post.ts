@@ -6,10 +6,25 @@ export default defineEventHandler(async (event) => {
   
   const { departureStation, arrivalStation, date } = body
   
-  if (!departureStation || !date) {
+  // Validation des inputs
+  if (!departureStation || typeof departureStation !== 'string' || departureStation.length > 100) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing required parameters'
+      statusMessage: 'Gare de départ invalide'
+    })
+  }
+  
+  if (!date || typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Date invalide'
+    })
+  }
+  
+  if (arrivalStation && (typeof arrivalStation !== 'string' || arrivalStation.length > 100)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Gare d\'arrivée invalide'
     })
   }
 
@@ -38,7 +53,7 @@ export default defineEventHandler(async (event) => {
     
     throw createError({
       statusCode: 500,
-      statusMessage: `Erreur lors de la récupération des données: ${error.message}`
+      statusMessage: 'Service temporairement indisponible, réessayez dans quelques minutes'
     })
   }
 
@@ -59,12 +74,17 @@ async function searchTGVMaxForStation(departureStation: string, arrivalStation?:
     }
 
     
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5s timeout
+    
     const response = await fetch(tgvMaxUrl, {
       headers: {
         'Accept': 'application/json'
       },
-      timeout: 15000
+      signal: controller.signal
     })
+    
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       console.error('TGVMax API error:', response.status, response.statusText)

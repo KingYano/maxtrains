@@ -1,4 +1,4 @@
-@import '~/assets/scss/variables';
+@use '~/assets/scss/variables' as *;
 
 .search-history {
   background: get-color(bg-primary);
@@ -49,6 +49,30 @@
   flex-direction: column;
   gap: get-spacing(sm);
   margin-bottom: get-spacing(md);
+  max-height: 225px;
+  overflow-y: auto;
+  padding-right: get-spacing(xs);
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: get-color(bg-hover);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: get-color(border-color);
+    border-radius: 2px;
+    
+    &:hover {
+      background: get-color(text-muted);
+    }
+  }
+  
+  scrollbar-width: thin;
+  scrollbar-color: get-color(border-color) get-color(bg-hover);
 }
 
 .history-item {

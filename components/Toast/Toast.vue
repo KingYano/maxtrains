@@ -20,59 +20,44 @@
   </Teleport>
 </template>
 
-<script setup>
-const props = defineProps({
-  type: {
-    type: String,
-    default: 'info',
-    validator: (value) => ['success', 'error', 'warning', 'info'].includes(value)
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    default: ''
-  },
-  duration: {
-    type: Number,
-    default: 5000
-  },
-  visible: {
-    type: Boolean,
-    default: false
+<script setup lang="ts">
+  import type { ToastProps, ToastEmits } from '~/types/toast'
+
+  const props = withDefaults(defineProps<ToastProps>(), {
+    type: 'info',
+    message: '',
+    duration: 5000,
+    visible: false
+  })
+
+  const emit = defineEmits<ToastEmits>()
+
+  let timer = null
+
+  watch(() => props.visible, (newValue) => {
+    if (newValue && props.duration > 0) {
+      timer = setTimeout(() => {
+        close()
+      }, props.duration)
+    } else if (timer) {
+      clearTimeout(timer)
+    }
+  })
+
+  const close = () => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    emit('close')
   }
-})
 
-const emit = defineEmits(['close'])
-
-let timer = null
-
-watch(() => props.visible, (newValue) => {
-  if (newValue && props.duration > 0) {
-    timer = setTimeout(() => {
-      close()
-    }, props.duration)
-  } else if (timer) {
-    clearTimeout(timer)
-  }
-})
-
-const close = () => {
-  if (timer) {
-    clearTimeout(timer)
-  }
-  emit('close')
-}
-
-onUnmounted(() => {
-  if (timer) {
-    clearTimeout(timer)
-  }
-})
+  onUnmounted(() => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+  })
 </script>
 
 <style lang="scss" scoped>
-@import './Toast.scss';
+  @use './Toast.scss';
 </style>

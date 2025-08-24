@@ -27,7 +27,7 @@
             <StationAutocomplete
               v-model="searchParams.departureStation"
               placeholder="Ex. : Paris, Lyon, Le Creusot"
-            :class="{ 'error': formErrors.departureStation }"
+              :class="formErrors.departureStation ? 'error' : ''"
               :aria-describedby="formErrors.departureStation ? 'departure-error' : undefined"
               :required="true"
               @station-selected="onDepartureSelected"
@@ -93,10 +93,15 @@
           Veuillez remplir tous les champs obligatoires pour effectuer la recherche
         </div>
       </form>
+      
+      <div class="search-info">
+        <i class="ri-information-line" aria-hidden="true"></i>
+        Il est possible que votre gare ne soit pas dans la liste. Vous pouvez quand même essayer de saisir le nom de votre gare pour effectuer une recherche.
+      </div>
     </section>
 
     <ClientOnly>
-      <SkeletonLoader v-if="searching" type="search-results" class="card" />
+      <SkeletonLoader v-if="searching || isLoadingMap" type="search-results" class="card" />
       
       <section v-else-if="searchResults.length === 0 && hasSearched" class="card empty-state" role="status" aria-live="polite">
         <div class="empty-content">
@@ -109,6 +114,7 @@
       <div v-if="searchResults.length > 0" class="results-container">
         <div class="results-map">
           <MapView 
+            ref="mapViewRef"
             :search-results="searchResults"
             :grouped-results="groupedResults"
             @destination-selected="scrollToDestination"
@@ -120,18 +126,32 @@
         <h2 id="results-heading" class="results-header">
           <i class="ri-train-line" aria-hidden="true"></i> Trains TGVmax
         </h2>
-        <p class="results-summary">
-          {{ destinationsCount }} destinations • {{ totalTrainsCount }} trains disponibles depuis {{ searchParams.departureStation }}
+        <p v-if="lastSuccessfulSearch" class="results-summary">
+          {{ destinationsCount }} destinations • {{ totalTrainsCount }} trains disponibles depuis {{ lastSuccessfulSearch.departureStation }}
         </p>
         
-        <div v-for="destination in Object.keys(groupedResults).sort()" :key="destination" :id="`destination-${destination.replace(/\s+/g, '-').toLowerCase()}`" class="destination-section">
+        <div 
+          v-for="destination in Object.keys(groupedResults).sort()" 
+          :key="destination" 
+          :id="`destination-${destination.replace(/\s+/g, '-').toLowerCase()}`" 
+          class="destination-section"
+        >
           <h3 class="destination-title">
             <i class="ri-map-pin-line" aria-hidden="true"></i> {{ destination }} ({{ groupedResults[destination].length }} trains)
           </h3>
           
+          <div v-if="!hasCoordinatesForDestination(destination)" class="missing-station-notice">
+            <i class="ri-map-pin-line"></i>
+            Cette destination n'est pas renseignée dans les données de la SNCF et n'est pas visible sur la carte
+          </div>
+          
           <ul role="list" class="trains-list">
             <li v-for="train in groupedResults[destination]" :key="train.trainId">
-              <div class="train-card" tabindex="0">
+              <div 
+                class="train-card" 
+                tabindex="0"
+                @click.stop="selectTrainOnMap(train)"
+              >
                 <div class="train-main">
                   <div class="train-number">
                     <i class="ri-train-line"></i> {{ train.trainId }}
@@ -140,7 +160,18 @@
                     <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime) }}
                   </div>
                   <div class="train-status">
-                    <span :class="['status-badge', train.status]">
+                    <a 
+                      v-if="train.status === 'available'" 
+                      :href="generateBookingUrl(train)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="booking-link"
+                      @click.stop
+                    >
+                      <i class="ri-external-link-line"></i>
+                      Réserver
+                    </a>
+                    <span v-else :class="['status-badge', train.status]">
                       {{ getStatusText(train.status) }}
                     </span>
                   </div>
@@ -162,6 +193,7 @@
 <script setup lang="ts">
 import { format } from 'date-fns'
 import type { Station, TGVMaxAvailability, SearchParams } from '~/types/global'
+import { staticCoordinates } from '~/utils/station-coordinates'
 
 const searchStore = useSearchStore()
 
@@ -179,9 +211,13 @@ const searchParams = reactive({
 
 const selectedDepartureStation = ref<Station | null>(null)
 const selectedArrivalStation = ref<Station | null>(null)
+const mapViewRef = ref()
+const currentHighlightedDestination = ref<string | null>(null)
+const isLoadingMap = ref(false)
 
 const { isSearching: searching, currentResults: searchResults } = storeToRefs(searchStore)
 const hasSearched = ref(false)
+const lastSuccessfulSearch = ref<{ departureStation: string; date: string } | null>(null)
 
 onMounted(() => {
   searchStore.loadFromStorage()
@@ -259,6 +295,8 @@ const handleSearch = async () => {
   searchStore.setSearching(true)
   searchStore.setResults([])
   hasSearched.value = true
+  clearHighlight()
+  currentHighlightedDestination.value = null
 
   const currentSearch = {
     departureStation: searchParams.departureStation,
@@ -280,6 +318,11 @@ const handleSearch = async () => {
     })
 
     searchStore.setResults(data)
+    
+    lastSuccessfulSearch.value = {
+      departureStation: searchParams.departureStation,
+      date: searchParams.date
+    }
     
     if (data.length > 0) {
       showSuccess('Recherche terminée', `${data.length} trains trouvés depuis ${searchParams.departureStation}`)
@@ -307,10 +350,20 @@ const getStatusText = (status: TGVMaxAvailability['status']) => {
 }
 
 
+
 const fillFromHistory = (historyItem: SearchParams) => {
   searchParams.departureStation = historyItem.departureStation
   searchParams.arrivalStation = historyItem.arrivalStation || ''
   searchParams.date = historyItem.date
+}
+
+const clearHighlight = () => {
+  if (currentHighlightedDestination.value) {
+    const prevElement = document.getElementById(`destination-${currentHighlightedDestination.value.replace(/\s+/g, '-').toLowerCase()}`)
+    if (prevElement) {
+      prevElement.classList.remove('highlight-destination')
+    }
+  }
 }
 
 const scrollToDestination = (destination: string) => {
@@ -318,21 +371,65 @@ const scrollToDestination = (destination: string) => {
   const element = document.getElementById(elementId)
   
   if (element) {
+    clearHighlight()
+    
     element.scrollIntoView({ 
       behavior: 'smooth', 
       block: 'start' 
     })
     
     element.classList.add('highlight-destination')
-    setTimeout(() => {
-      element.classList.remove('highlight-destination')
-    }, 2000)
+    currentHighlightedDestination.value = destination
   }
 }
 
+const generateBookingUrl = (train: TGVMaxAvailability) => {
+  const departureDate = new Date(searchParams.date)
+  const year = departureDate.getFullYear()
+  const month = String(departureDate.getMonth() + 1).padStart(2, '0')
+  const day = String(departureDate.getDate()).padStart(2, '0')
+  const formattedDate = `${year}-${month}-${day}`
+  
+  const baseUrl = 'https://www.sncf-connect.com/app/home/proposal'
+  const params = new URLSearchParams({
+    origin: train.departureStation.name,
+    destination: train.arrivalStation.name,
+    outwardDate: formattedDate,
+    passengers: '1',
+    directTravel: 'false',
+    animals: 'false',
+    bike: 'false'
+  })
+  
+  return `${baseUrl}?${params.toString()}`
+}
 
+
+const selectTrainOnMap = (train: TGVMaxAvailability) => {
+  if (mapViewRef.value && mapViewRef.value.highlightTrain) {
+    mapViewRef.value.highlightTrain(train)
+    
+    const mapElement = document.querySelector('.results-map')
+    if (mapElement) {
+      mapElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      })
+    }
+  }
+}
+
+const hasCoordinatesForDestination = (destination: string) => {
+  return staticCoordinates[destination] !== undefined
+}
+
+watch(() => mapViewRef.value?.isLoadingCoordinates, (loading) => {
+  if (loading !== undefined) {
+    isLoadingMap.value = loading
+  }
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
-@import './index.scss';
+  @use './index.scss';
 </style>
