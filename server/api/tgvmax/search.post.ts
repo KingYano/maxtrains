@@ -104,7 +104,11 @@ async function searchTGVMaxForStation(departureStation: string, arrivalStation?:
         if (!fields.heure_depart || !fields.heure_arrivee) return null
         
         const departureDateTime = new Date(`${fields.date}T${fields.heure_depart}:00`)
-        const arrivalDateTime = new Date(`${fields.date}T${fields.heure_arrivee}:00`)
+        let arrivalDateTime = new Date(`${fields.date}T${fields.heure_arrivee}:00`)
+        
+        if (arrivalDateTime.getTime() <= departureDateTime.getTime()) {
+          arrivalDateTime.setDate(arrivalDateTime.getDate() + 1)
+        }
         
         const diffMs = arrivalDateTime.getTime() - departureDateTime.getTime()
         const hours = Math.floor(diffMs / (1000 * 60 * 60))

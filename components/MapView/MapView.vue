@@ -53,14 +53,6 @@
             markerZoomAnimation: false
           }).setView([46.603354, 1.888334], 6)
 
-          map.createPane('selectedPane')
-          map.getPane('selectedPane')!.style.zIndex = '650'
-          
-          map.createPane('markersPane')
-          map.getPane('markersPane')!.style.zIndex = '700'
-          
-          map.createPane('popupPane')
-          map.getPane('popupPane')!.style.zIndex = '800'
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -83,7 +75,7 @@
     const bounds = L.latLngBounds([])
     const departureStation = props.searchResults[0]?.departureStation?.name
     const destinations = Object.keys(props.groupedResults)
-
+    
     const allStations = [departureStation, ...destinations].filter(Boolean)
     const coordinatesMap = await getAllCoordinates(allStations)
 
@@ -98,13 +90,12 @@
         color: 'white',
         weight: 3,
         opacity: 1,
-        fillOpacity: 1,
-        pane: 'markersPane'
+        fillOpacity: 1
       }).addTo(map)
       
       departureMarker.bindPopup(
         `<div class="map-popup"><strong>Gare de départ</strong><br/>${departureStation}</div>`,
-        { closeButton: false, className: 'custom-popup', pane: 'popupPane' }
+        { closeButton: false, className: 'custom-popup' }
       )
       
       markers.push(departureMarker)
@@ -123,21 +114,20 @@
           color: 'white',
           weight: 2,
           opacity: 1,
-          fillOpacity: 1,
-          pane: 'markersPane'
+          fillOpacity: 1
         }).addTo(map)
 
         const trainsCount = props.groupedResults[destination].length
         marker.bindPopup(
           `<div class="map-popup"><strong>Destination</strong><br/>${destination}<br/><em>${trainsCount} train${trainsCount > 1 ? 's' : ''} disponible${trainsCount > 1 ? 's' : ''}</em></div>`,
-          { closeButton: false, className: 'custom-popup', pane: 'popupPane' }
+          { closeButton: false, className: 'custom-popup' }
         )
 
         marker.on('click', () => {
           emit('destinationSelected', destination)
         })
 
-        if (departureCoords) {
+        if (departureCoords && coords) {
           const isSelectedRoute = selectedTrain.value &&
             selectedTrain.value.arrivalStation.name === destination
 
@@ -147,8 +137,7 @@
           ], {
             color: isSelectedRoute ? '#ef4444' : markerColor,
             weight: isSelectedRoute ? 6 : 3,
-            opacity: isSelectedRoute ? 0.9 : 0.6,
-            pane: isSelectedRoute ? 'selectedPane' : 'overlayPane'
+            opacity: isSelectedRoute ? 0.9 : 0.6
           }).addTo(map)
 
           routeLines.push(line)
@@ -163,6 +152,7 @@
     if (bounds.isValid()) {
       map.fitBounds(bounds, { padding: [20, 20] })
     }
+    
   }
 
   onMounted(() => {
@@ -178,9 +168,9 @@
 
   watch(() => props.groupedResults, () => {
     if (map) {
-      nextTick(async () => {
+      setTimeout(async () => {
         await addMarkers()
-      })
+      }, 50)
     }
   }, { deep: true })
 
@@ -207,7 +197,7 @@
 
     for (const [destination] of Object.entries(props.groupedResults)) {
       const coords = staticCoordinates[destination]
-      if (coords) {
+      if (coords && departureCoords) {
         const isSelectedRoute = selectedTrain.value &&
           selectedTrain.value.arrivalStation.name === destination
 
@@ -217,8 +207,7 @@
         ], {
           color: isSelectedRoute ? '#ef4444' : '#10b981',
           weight: isSelectedRoute ? 6 : 3,
-          opacity: isSelectedRoute ? 0.9 : 0.6,
-          pane: isSelectedRoute ? 'selectedPane' : 'overlayPane'
+          opacity: isSelectedRoute ? 0.9 : 0.6
         }).addTo(map!)
 
         routeLines.push(line)

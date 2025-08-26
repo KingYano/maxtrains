@@ -157,7 +157,7 @@
                     <i class="ri-train-line"></i> {{ train.trainId }}
                   </div>
                   <div class="train-schedule">
-                    <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime) }}
+                    <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime, true, train.departureTime) }}
                   </div>
                   <div class="train-status">
                     <a 
@@ -185,7 +185,7 @@
                     <i class="ri-train-line"></i> {{ train.trainId }}
                   </div>
                   <div class="train-schedule-mobile">
-                    <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime) }} • <i class="ri-timer-line"></i> {{ train.duration }}
+                    <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime, true, train.departureTime) }} • <i class="ri-timer-line"></i> {{ train.duration }}
                   </div>
                   <div class="train-status-mobile">
                     <a 
@@ -361,8 +361,19 @@ const handleSearch = async () => {
   }
 }
 
-const formatTime = (time: string) => {
-  return format(new Date(time), 'HH:mm')
+const formatTime = (time: string, isArrival = false, departureTime?: string) => {
+  const timeFormatted = format(new Date(time), 'HH:mm')
+  
+  if (isArrival && departureTime) {
+    const departure = new Date(departureTime)
+    const arrival = new Date(time)
+    
+    if (arrival.getDate() !== departure.getDate()) {
+      return `${timeFormatted} +1`
+    }
+  }
+  
+  return timeFormatted
 }
 
 const getStatusText = (status: TGVMaxAvailability['status']) => {
