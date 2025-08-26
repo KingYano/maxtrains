@@ -58,6 +58,9 @@
           
           map.createPane('markersPane')
           map.getPane('markersPane')!.style.zIndex = '700'
+          
+          map.createPane('popupPane')
+          map.getPane('popupPane')!.style.zIndex = '800'
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -98,6 +101,12 @@
         fillOpacity: 1,
         pane: 'markersPane'
       }).addTo(map)
+      
+      departureMarker.bindPopup(
+        `<div class="map-popup"><strong>Gare de départ</strong><br/>${departureStation}</div>`,
+        { closeButton: false, className: 'custom-popup', pane: 'popupPane' }
+      )
+      
       markers.push(departureMarker)
       bounds.extend([departureCoords.lat, departureCoords.lng])
     }
@@ -117,6 +126,12 @@
           fillOpacity: 1,
           pane: 'markersPane'
         }).addTo(map)
+
+        const trainsCount = props.groupedResults[destination].length
+        marker.bindPopup(
+          `<div class="map-popup"><strong>Destination</strong><br/>${destination}<br/><em>${trainsCount} train${trainsCount > 1 ? 's' : ''} disponible${trainsCount > 1 ? 's' : ''}</em></div>`,
+          { closeButton: false, className: 'custom-popup', pane: 'popupPane' }
+        )
 
         marker.on('click', () => {
           emit('destinationSelected', destination)

@@ -204,6 +204,14 @@
   text-align: right;
 }
 
+.train-main-desktop {
+  display: flex;
+}
+
+.train-main-mobile {
+  display: none;
+}
+
 
 .booking-link {
   display: inline-flex;
@@ -300,26 +308,8 @@
   }
   
   .results-section {
-    max-height: 700px;
-    overflow-y: auto;
-    
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-    
-    &::-webkit-scrollbar-track {
-      background: var(--bg-secondary);
-      border-radius: 3px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 3px;
-      
-      &:hover {
-        background: var(--text-muted);
-      }
-    }
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
@@ -332,6 +322,63 @@
   .form-field {
     flex: none;
     width: 100%;
+  }
+  
+  input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-size: 16px;
+  }
+  
+  .train-main-desktop {
+    display: none;
+  }
+  
+  .train-main-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: get-spacing(sm);
+    align-items: flex-start;
+  }
+  
+  .train-number-mobile {
+    font-weight: 600;
+    font-size: get-font-size(lg);
+    color: get-color(text-primary);
+    width: 100%;
+  }
+  
+  .train-schedule-mobile {
+    font-size: get-font-size(base);
+    color: get-color(text-secondary);
+    font-weight: 500;
+    width: 100%;
+    
+    i {
+      margin-right: get-spacing(xs);
+    }
+  }
+  
+  .train-status-mobile {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    
+    .booking-link {
+      width: auto;
+      padding: get-spacing(sm) get-spacing(lg);
+      font-size: get-font-size(sm);
+      font-weight: 600;
+    }
+    
+    .status-badge {
+      font-size: get-font-size(sm);
+      padding: get-spacing(sm) get-spacing(lg);
+    }
   }
   
   .destination-section {

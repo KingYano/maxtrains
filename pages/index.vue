@@ -152,7 +152,7 @@
                 tabindex="0"
                 @click.stop="selectTrainOnMap(train)"
               >
-                <div class="train-main">
+                <div class="train-main train-main-desktop">
                   <div class="train-number">
                     <i class="ri-train-line"></i> {{ train.trainId }}
                   </div>
@@ -177,6 +177,31 @@
                   </div>
                   <div class="train-duration">
                     <i class="ri-timer-line"></i> {{ train.duration }}
+                  </div>
+                </div>
+
+                <div class="train-main train-main-mobile">
+                  <div class="train-number-mobile">
+                    <i class="ri-train-line"></i> {{ train.trainId }}
+                  </div>
+                  <div class="train-schedule-mobile">
+                    <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime) }} • <i class="ri-timer-line"></i> {{ train.duration }}
+                  </div>
+                  <div class="train-status-mobile">
+                    <a 
+                      v-if="train.status === 'available'" 
+                      :href="generateBookingUrl(train)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="booking-link"
+                      @click.stop
+                    >
+                      <i class="ri-external-link-line"></i>
+                      Réserver
+                    </a>
+                    <span v-else :class="['status-badge', train.status]">
+                      {{ getStatusText(train.status) }}
+                    </span>
                   </div>
                 </div>
               </div>
