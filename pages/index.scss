@@ -225,6 +225,9 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
   
   &:hover {
     background: get-color(primary-hover);
@@ -310,6 +313,24 @@
   .results-section {
     max-height: none;
     overflow-y: visible;
+  }
+}
+
+.booking-warning {
+  background: get-color(warning-bg);
+  border: 1px solid get-color(warning-border);
+  color: get-color(warning-text);
+  padding: get-spacing(md);
+  border-radius: get-radius(md);
+  display: flex;
+  align-items: center;
+  gap: get-spacing(sm);
+  font-weight: 500;
+  margin-top: get-spacing(md);
+  
+  i {
+    font-size: get-font-size(lg);
+    flex-shrink: 0;
   }
 }
 

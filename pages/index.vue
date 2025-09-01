@@ -160,17 +160,14 @@
                     <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime, true, train.departureTime) }}
                   </div>
                   <div class="train-status">
-                    <a 
+                    <button 
                       v-if="train.status === 'available'" 
-                      :href="generateBookingUrl(train)"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       class="booking-link"
-                      @click.stop
+                      @click.stop="showBookingModal(train)"
                     >
                       <i class="ri-external-link-line"></i>
                       Réserver
-                    </a>
+                    </button>
                     <span v-else :class="['status-badge', train.status]">
                       {{ getStatusText(train.status) }}
                     </span>
@@ -188,17 +185,14 @@
                     <i class="ri-time-line"></i> {{ formatTime(train.departureTime) }} → {{ formatTime(train.arrivalTime, true, train.departureTime) }} • <i class="ri-timer-line"></i> {{ train.duration }}
                   </div>
                   <div class="train-status-mobile">
-                    <a 
+                    <button 
                       v-if="train.status === 'available'" 
-                      :href="generateBookingUrl(train)"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       class="booking-link"
-                      @click.stop
+                      @click.stop="showBookingModal(train)"
                     >
                       <i class="ri-external-link-line"></i>
                       Réserver
-                    </a>
+                    </button>
                     <span v-else :class="['status-badge', train.status]">
                       {{ getStatusText(train.status) }}
                     </span>
@@ -212,6 +206,16 @@
         </div>
       </div>
     </ClientOnly>
+
+    <Modal
+      :visible="bookingModalVisible"
+      title="Redirection vers SNCF Connect"
+      message="Vous allez être redirigé vers SNCF Connect pour finaliser votre réservation."
+      confirm-text="Continuer"
+      cancel-text="Annuler"
+      @confirm="proceedToBooking"
+      @close="closeBookingModal"
+    />
   </div>
 </template>
 
@@ -239,6 +243,8 @@ const selectedArrivalStation = ref<Station | null>(null)
 const mapViewRef = ref()
 const currentHighlightedDestination = ref<string | null>(null)
 const isLoadingMap = ref(false)
+const bookingModalVisible = ref(false)
+const pendingBookingTrain = ref<TGVMaxAvailability | null>(null)
 
 const { isSearching: searching, currentResults: searchResults } = storeToRefs(searchStore)
 const hasSearched = ref(false)
@@ -457,6 +463,24 @@ const selectTrainOnMap = (train: TGVMaxAvailability) => {
 
 const hasCoordinatesForDestination = (destination: string) => {
   return staticCoordinates[destination] !== undefined
+}
+
+const showBookingModal = (train: TGVMaxAvailability) => {
+  pendingBookingTrain.value = train
+  bookingModalVisible.value = true
+}
+
+const closeBookingModal = () => {
+  bookingModalVisible.value = false
+  pendingBookingTrain.value = null
+}
+
+const proceedToBooking = () => {
+  if (pendingBookingTrain.value) {
+    const url = generateBookingUrl(pendingBookingTrain.value)
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+  closeBookingModal()
 }
 
 watch(() => mapViewRef.value?.isLoadingCoordinates, (loading) => {

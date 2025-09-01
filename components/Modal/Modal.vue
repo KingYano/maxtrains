@@ -11,13 +11,16 @@
         
         <div class="modal-body">
           <p class="modal-message">{{ message }}</p>
+          <div v-if="title === 'Redirection vers SNCF Connect'" class="booking-warning">
+            ⚠️ Les trajets à 0€ sont exclusivement réservés aux abonnés TGV Max.
+          </div>
         </div>
         
         <div class="modal-footer">
           <button class="btn-secondary" @click="close">
             {{ cancelText }}
           </button>
-          <button class="btn-danger" @click="confirm">
+          <button class="btn-primary" @click="confirm">
             {{ confirmText }}
           </button>
         </div>
