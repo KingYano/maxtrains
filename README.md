@@ -4,7 +4,7 @@ Application moderne pour trouver vos places TGVmax gratuites (0€) instantaném
 
 ## ✅ **Application fonctionnelle !**
 
-✨ **Accessible sur : http://localhost:3000**
+✨ **Accessible sur : maxtrains.fr**
 
 ## 🚀 Fonctionnalités implémentées
 
@@ -30,7 +30,7 @@ Application moderne pour trouver vos places TGVmax gratuites (0€) instantaném
 ## 📋 Installation
 
 ### 1. **L'application est déjà lancée !**
-Le serveur de développement tourne sur **http://localhost:3000**
+Le serveur de développement tourne sur **votre local**
 
 ### 2. Configuration API SNCF (optionnelle)
 Pour les données temps réel, créer un fichier `.env` :
@@ -52,15 +52,6 @@ SNCF_API_KEY=votre_token_sncf_ici
 1. **Rechercher** : Entrer une gare de départ et une date
 2. **Consulter** : Voir les résultats avec disponibilités colorées  
 3. **Réserver** : Cliquer sur "🎫 Réserver" pour aller sur SNCF Connect
-
-## 🎨 Design
-
-**Interface :**
-- 🟢 Vert émeraude (#10b981) : Disponible
-- 🟠 Orange (#f59e0b) : Places limitées
-- 🔴 Rouge (#ef4444) : Complet
-- Cards élégantes avec ombres subtiles
-- Emojis pour une meilleure UX
 
 ## 📁 Structure
 
@@ -99,14 +90,6 @@ npm run build
 npm run preview
 ```
 
-## 🚀 Prochaines étapes possibles
-
-Pour étendre l'application :
-- Ajouter une carte Leaflet interactive pour visualiser les trajets
-- Implémenter un système de notifications push pour les nouvelles disponibilités
-- Créer un mode hors-ligne avec cache des résultats
-- Ajouter des filtres avancés (durée, correspondances)
-- Intégrer l'API de réservation SNCF Connect
 
 ---
 
