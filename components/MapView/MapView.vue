@@ -13,6 +13,8 @@
   import type { TGVMaxAvailability } from '~/types/tgvmax'
   import type { MapViewProps, MapViewEmits } from '~/types/mapview'
   import { staticCoordinates } from '~/utils/station-coordinates'
+  import { getStationMetadata } from '~/utils/station-categories'
+  import type { DestinationType } from '~/utils/station-categories'
 
   const props = defineProps<MapViewProps>()
 
@@ -23,6 +25,21 @@
   const routeLines: L.Polyline[] = []
   const selectedTrain = ref<TGVMaxAvailability | null>(null)
   const isLoadingCoordinates = ref(false)
+
+  // Fonction pour obtenir la couleur selon le type de destination
+  const getMarkerColor = (destinationName: string): string => {
+    const metadata = getStationMetadata(destinationName)
+    if (!metadata) return '#10b981' // Vert par défaut
+
+    const colorMap: Record<DestinationType, string> = {
+      plage: '#3b82f6',          // Bleu pour les plages
+      montagne: '#22c55e',       // Vert pour les montagnes
+      parc_attraction: '#ec4899', // Rose pour les parcs
+      etranger: '#9333ea'        // Violet pour l'étranger
+    }
+
+    return colorMap[metadata.type] || '#10b981'
+  }
 
 
   const getAllCoordinates = async (stationNames: string[]) => {
@@ -106,7 +123,8 @@
       const coords = coordinatesMap[destination]
 
       if (coords) {
-        let markerColor = '#10b981'
+        const markerColor = getMarkerColor(destination)
+        const metadata = getStationMetadata(destination)
 
         const marker = L.circleMarker([coords.lat, coords.lng], {
           radius: 6,
@@ -118,8 +136,14 @@
         }).addTo(map)
 
         const trainsCount = props.groupedResults[destination].length
+        const typeLabel = metadata ? ['🏖️ Plage', '⛰️ Montagne', '🎢 Parc', '🌍 Étranger'][['plage', 'montagne', 'parc_attraction', 'etranger'].indexOf(metadata.type)] || '' : ''
+        const popupContent = `<div class="map-popup">
+          <strong>${typeLabel}</strong><br/>
+          <strong>${destination}</strong><br/>
+          <em>${trainsCount} train${trainsCount > 1 ? 's' : ''} disponible${trainsCount > 1 ? 's' : ''}</em>
+        </div>`
         marker.bindPopup(
-          `<div class="map-popup"><strong>Destination</strong><br/>${destination}<br/><em>${trainsCount} train${trainsCount > 1 ? 's' : ''} disponible${trainsCount > 1 ? 's' : ''}</em></div>`,
+          popupContent,
           { closeButton: false, className: 'custom-popup' }
         )
 
@@ -201,11 +225,13 @@
         const isSelectedRoute = selectedTrain.value &&
           selectedTrain.value.arrivalStation.name === destination
 
+        const markerColor = getMarkerColor(destination)
+
         const line = L.polyline([
           [departureCoords.lat, departureCoords.lng],
           [coords.lat, coords.lng]
         ], {
-          color: isSelectedRoute ? '#ef4444' : '#10b981',
+          color: isSelectedRoute ? '#ef4444' : markerColor,
           weight: isSelectedRoute ? 6 : 3,
           opacity: isSelectedRoute ? 0.9 : 0.6
         }).addTo(map!)

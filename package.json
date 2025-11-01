@@ -21,6 +21,7 @@
   "devDependencies": {
     "@nuxt/devtools": "^1.5.0",
     "@types/leaflet": "^1.9.12",
-    "sass": "^1.90.0"
+    "sass": "^1.90.0",
+    "typescript": "^5.9.3"
   }
 }

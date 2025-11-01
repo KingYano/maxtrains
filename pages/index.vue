@@ -100,10 +100,20 @@
       </div>
     </section>
 
+    <!-- Filtres thématiques -->
+    <ClientOnly>
+      <FilterChips
+        v-if="searchResults.length > 0 && !searching"
+        :show-region-filter="true"
+        @update:types="handleTypeFiltersChange"
+        @update:regions="handleRegionFiltersChange"
+      />
+    </ClientOnly>
+
     <ClientOnly>
       <SkeletonLoader v-if="searching || isLoadingMap" type="search-results" class="card" />
-      
-      <section v-else-if="searchResults.length === 0 && hasSearched" class="card empty-state" role="status" aria-live="polite">
+
+      <section v-else-if="displayedResults.length === 0 && searchResults.length === 0 && hasSearched" class="card empty-state" role="status" aria-live="polite">
         <div class="empty-content">
           <i class="ri-train-line empty-icon" aria-hidden="true"></i>
           <h3>Aucun train trouvé</h3>
@@ -111,11 +121,20 @@
         </div>
       </section>
 
-      <div v-if="searchResults.length > 0" class="results-container">
-        <div class="results-map">
-          <MapView 
+      <!-- Message si filtres actifs mais aucun résultat -->
+      <section v-else-if="searchResults.length > 0 && displayedResults.length === 0 && hasActiveFilters" class="card empty-state" role="status" aria-live="polite">
+        <div class="empty-content">
+          <i class="ri-filter-line empty-icon" aria-hidden="true"></i>
+          <h3>Aucun résultat avec ces filtres</h3>
+          <p>Essayez de modifier ou supprimer certains filtres pour voir plus de résultats.</p>
+        </div>
+      </section>
+
+      <div v-if="displayedResults.length > 0" class="results-container">
+        <div ref="resultsMapRef" class="results-map">
+          <MapView
             ref="mapViewRef"
-            :search-results="searchResults"
+            :search-results="displayedResults"
             :grouped-results="groupedResults"
             @destination-selected="scrollToDestination"
           />
@@ -130,27 +149,48 @@
           {{ destinationsCount }} destinations • {{ totalTrainsCount }} trains disponibles depuis {{ lastSuccessfulSearch.departureStation }}
         </p>
         
-        <div 
-          v-for="destination in Object.keys(groupedResults).sort()" 
-          :key="destination" 
-          :id="`destination-${destination.replace(/\s+/g, '-').toLowerCase()}`" 
-          class="destination-section"
+        <div
+          v-for="destination in Object.keys(groupedResults).sort()"
+          :key="destination"
+          :id="`destination-${destination.replace(/\s+/g, '-').toLowerCase()}`"
+          :ref="setDestinationRef(destination)"
+          :class="['destination-section', { 'highlight-destination': highlightedDestination === destination }]"
         >
-          <h3 class="destination-title">
-            <i class="ri-map-pin-line" aria-hidden="true"></i> {{ destination }} ({{ groupedResults[destination].length }} trains)
-          </h3>
-          
-          <div v-if="!hasCoordinatesForDestination(destination)" class="missing-station-notice">
-            <i class="ri-map-pin-line"></i>
-            Cette destination n'est pas renseignée dans les données de la SNCF et n'est pas visible sur la carte
+          <div class="destination-header" @click="handleDestinationHeaderClick(destination)">
+            <div class="destination-header-content">
+              <h3 class="destination-title">
+                <i class="ri-map-pin-line" aria-hidden="true"></i> {{ destination }} ({{ groupedResults[destination].length }} trains)
+              </h3>
+              <div class="destination-badges">
+                <span
+                  v-if="getDestinationMetadata(destination)"
+                  :class="['badge', 'type-badge', getDestinationMetadata(destination)?.type]"
+                >
+                  {{ getTypeLabel(getDestinationMetadata(destination)?.type) }}
+                </span>
+                <span
+                  v-if="getDestinationMetadata(destination)"
+                  class="badge region-badge"
+                >
+                  {{ getRegionLabel(getDestinationMetadata(destination)?.region) }}
+                </span>
+              </div>
+            </div>
+            <i :class="['ri-arrow-down-s-line', 'toggle-icon', { open: isDestinationOpen(destination) }]" aria-hidden="true"></i>
           </div>
-          
-          <ul role="list" class="trains-list">
+
+          <transition name="destination-content">
+            <div v-if="isDestinationOpen(destination)" class="destination-content">
+              <div v-if="!hasCoordinatesForDestination(destination)" class="missing-station-notice">
+                <i class="ri-map-pin-line"></i>
+                Cette destination n'est pas renseignée dans les données de la SNCF et n'est pas visible sur la carte
+              </div>
+
+              <ul role="list" class="trains-list">
             <li v-for="train in groupedResults[destination]" :key="train.trainId">
-              <div 
-                class="train-card" 
+              <div
+                class="train-card"
                 tabindex="0"
-                @click.stop="selectTrainOnMap(train)"
               >
                 <div class="train-main train-main-desktop">
                   <div class="train-number">
@@ -201,6 +241,8 @@
               </div>
             </li>
           </ul>
+            </div>
+          </transition>
         </div>
       </section>
         </div>
@@ -223,6 +265,8 @@
 import { format } from 'date-fns'
 import type { Station, TGVMaxAvailability, SearchParams } from '~/types/global'
 import { staticCoordinates } from '~/utils/station-coordinates'
+import { getStationMetadata, typeLabels, regionLabels } from '~/utils/station-categories'
+import type { DestinationType, RegionType } from '~/utils/station-categories'
 
 const searchStore = useSearchStore()
 
@@ -241,14 +285,27 @@ const searchParams = reactive({
 const selectedDepartureStation = ref<Station | null>(null)
 const selectedArrivalStation = ref<Station | null>(null)
 const mapViewRef = ref()
-const currentHighlightedDestination = ref<string | null>(null)
+const resultsMapRef = ref()
+const destinationRefs = ref<Record<string, HTMLElement>>({})
+const highlightedDestination = ref<string | null>(null)
 const isLoadingMap = ref(false)
 const bookingModalVisible = ref(false)
 const pendingBookingTrain = ref<TGVMaxAvailability | null>(null)
+const openDestinations = ref<Set<string>>(new Set())
 
-const { isSearching: searching, currentResults: searchResults } = storeToRefs(searchStore)
+const {
+  isSearching: searching,
+  currentResults: searchResults,
+  filteredResults,
+  hasActiveFilters
+} = storeToRefs(searchStore)
 const hasSearched = ref(false)
 const lastSuccessfulSearch = ref<{ departureStation: string; date: string } | null>(null)
+
+// Résultats affichés (filtrés ou non selon les filtres actifs)
+const displayedResults = computed(() => {
+  return hasActiveFilters.value ? filteredResults.value : searchResults.value
+})
 
 onMounted(() => {
   searchStore.loadFromStorage()
@@ -285,9 +342,9 @@ const validateDate = () => {
 }
 
 const groupedResults = computed(() => {
-  if (searchResults.value.length === 0) return {} as Record<string, TGVMaxAvailability[]>
-  
-  const grouped = searchResults.value.reduce((acc: Record<string, TGVMaxAvailability[]>, train: TGVMaxAvailability) => {
+  if (displayedResults.value.length === 0) return {} as Record<string, TGVMaxAvailability[]>
+
+  const grouped = displayedResults.value.reduce((acc: Record<string, TGVMaxAvailability[]>, train: TGVMaxAvailability) => {
     const destination = train.arrivalStation.name
     if (!acc[destination]) {
       acc[destination] = []
@@ -327,7 +384,6 @@ const handleSearch = async () => {
   searchStore.setResults([])
   hasSearched.value = true
   clearHighlight()
-  currentHighlightedDestination.value = null
 
   const currentSearch = {
     departureStation: searchParams.departureStation,
@@ -399,29 +455,90 @@ const fillFromHistory = (historyItem: SearchParams) => {
   searchParams.date = historyItem.date
 }
 
-const clearHighlight = () => {
-  if (currentHighlightedDestination.value) {
-    const prevElement = document.getElementById(`destination-${currentHighlightedDestination.value.replace(/\s+/g, '-').toLowerCase()}`)
-    if (prevElement) {
-      prevElement.classList.remove('highlight-destination')
-    }
+// Handlers pour les filtres thématiques
+const handleTypeFiltersChange = (types: any[]) => {
+  searchStore.setTypeFilters(types)
+  clearHighlight()
+}
+
+const handleRegionFiltersChange = (regions: any[]) => {
+  searchStore.setRegionFilters(regions)
+  clearHighlight()
+}
+
+// Fonctions pour afficher les métadonnées des destinations
+const getDestinationMetadata = (destination: string) => {
+  return getStationMetadata(destination)
+}
+
+const getTypeLabel = (type: DestinationType | undefined) => {
+  if (!type) return ''
+  return typeLabels[type] || ''
+}
+
+const getRegionLabel = (region: RegionType | undefined) => {
+  if (!region) return ''
+  return regionLabels[region as RegionType] || ''
+}
+
+const setDestinationRef = (destination: string) => (el: any) => {
+  if (el) {
+    destinationRefs.value[destination] = el
   }
 }
 
-const scrollToDestination = (destination: string) => {
-  const elementId = `destination-${destination.replace(/\s+/g, '-').toLowerCase()}`
-  const element = document.getElementById(elementId)
-  
+const clearHighlight = () => {
+  highlightedDestination.value = null
+}
+
+const scrollToDestination = async (destination: string) => {
+  const element = destinationRefs.value[destination]
+
   if (element) {
     clearHighlight()
-    
-    element.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'start' 
-    })
-    
-    element.classList.add('highlight-destination')
-    currentHighlightedDestination.value = destination
+
+    // Ouvrir la destination si elle est fermée
+    if (!isDestinationOpen(destination)) {
+      toggleDestination(destination)
+    }
+
+    // Attendre le prochain tick pour que le DOM soit mis à jour
+    await nextTick()
+
+    // Petit délai supplémentaire pour la transition d'ouverture
+    setTimeout(() => {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+
+      highlightedDestination.value = destination
+    }, 50)
+  }
+}
+
+const toggleDestination = (destination: string) => {
+  if (openDestinations.value.has(destination)) {
+    openDestinations.value.delete(destination)
+  } else {
+    openDestinations.value.add(destination)
+  }
+}
+
+const isDestinationOpen = (destination: string) => {
+  return openDestinations.value.has(destination)
+}
+
+const handleDestinationHeaderClick = (destination: string) => {
+  // Vérifier si la destination est actuellement fermée (on va l'ouvrir)
+  const isCurrentlyClosed = !isDestinationOpen(destination)
+
+  // Toggle l'accordéon
+  toggleDestination(destination)
+
+  // Localiser sur la carte UNIQUEMENT lors de l'ouverture
+  if (isCurrentlyClosed && hasCoordinatesForDestination(destination)) {
+    locateDestinationOnMap(destination)
   }
 }
 
@@ -447,15 +564,21 @@ const generateBookingUrl = (train: TGVMaxAvailability) => {
 }
 
 
-const selectTrainOnMap = (train: TGVMaxAvailability) => {
-  if (mapViewRef.value && mapViewRef.value.highlightTrain) {
-    mapViewRef.value.highlightTrain(train)
-    
-    const mapElement = document.querySelector('.results-map')
-    if (mapElement) {
-      mapElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+const locateDestinationOnMap = (destination: string) => {
+  // Trouver le premier train de cette destination
+  const trains = displayedResults.value.filter(
+    result => result.arrivalStation.name === destination
+  )
+
+  if (trains.length > 0 && mapViewRef.value && mapViewRef.value.highlightTrain) {
+    // Utiliser le premier train pour localiser la destination
+    mapViewRef.value.highlightTrain(trains[0])
+
+    // Scroller vers la carte
+    if (resultsMapRef.value) {
+      resultsMapRef.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
       })
     }
   }

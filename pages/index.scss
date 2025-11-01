@@ -115,14 +115,9 @@
   margin-bottom: get-spacing(xl);
   scroll-margin-top: 100px;
   transition: all 0.3s ease;
-  cursor: pointer;
   border-radius: get-radius(md);
   padding: get-spacing(sm);
-  
-  &:hover {
-    background: get-color(bg-hover);
-  }
-  
+
   &.highlight-destination {
     background: get-color(success-bg);
     border-radius: get-radius(md);
@@ -132,16 +127,99 @@
   }
 }
 
+.destination-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: get-spacing(md);
+  padding: get-spacing(md);
+  border: 2px solid get-color(border-color);
+  border-radius: get-radius(md);
+  transition: all 0.2s ease;
+  background: get-color(bg-primary);
+  cursor: pointer;
+
+  &:hover {
+    background: get-color(bg-hover);
+    border-color: get-color(primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  }
+}
+
+.destination-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
 .destination-title {
   font-size: get-font-size(xl);
   font-weight: 600;
-  margin-bottom: get-spacing(md);
+  margin-bottom: get-spacing(sm);
   color: get-color(primary);
-  border-bottom: 2px solid get-color(border-color);
-  padding-bottom: get-spacing(sm);
   display: flex;
   align-items: center;
   gap: get-spacing(sm);
+}
+
+.destination-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: get-spacing(sm);
+}
+
+.toggle-icon {
+  font-size: 1.5rem;
+  color: get-color(primary);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.destination-content {
+  padding: get-spacing(md) 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: get-font-size(xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.type-badge {
+    &.plage {
+      background: rgba(59, 130, 246, 0.15);
+      color: #2563eb;
+    }
+
+    &.montagne {
+      background: rgba(34, 197, 94, 0.15);
+      color: #16a34a;
+    }
+
+    &.parc_attraction {
+      background: rgba(236, 72, 153, 0.15);
+      color: #db2777;
+    }
+
+    &.etranger {
+      background: rgba(147, 51, 234, 0.15);
+      color: #9333ea;
+    }
+  }
+
+  &.region-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
 }
 
 .trains-list {
@@ -156,19 +234,6 @@
   border-radius: get-radius(md);
   padding: get-spacing(lg);
   margin-bottom: get-spacing(md);
-  transition: all 0.2s ease;
-  cursor: pointer;
-  
-  &:hover {
-    background: get-color(bg-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:focus {
-    outline: 2px solid get-color(primary);
-  }
-  
 }
 
 .train-main {
@@ -297,6 +362,22 @@
   }
 }
 
+// Transitions pour l'accordéon des destinations
+.destination-content-enter-active,
+.destination-content-leave-active {
+  transition: all 0.3s ease;
+  max-height: 5000px;
+  overflow: hidden;
+}
+
+.destination-content-enter-from,
+.destination-content-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 @media (max-width: 1024px) {
   .results-container {
     flex-direction: column;
@@ -405,13 +486,26 @@
   .destination-section {
     scroll-margin-top: 80px;
   }
-  
+
+  .destination-header {
+    padding: get-spacing(sm) get-spacing(md);
+    gap: get-spacing(sm);
+  }
+
+  .destination-title {
+    font-size: get-font-size(lg);
+  }
+
+  .toggle-icon {
+    font-size: 1.25rem;
+  }
+
   .results-section {
     scroll-margin-top: 80px;
   }
-  
+
   .results-container {
     gap: get-spacing(md);
   }
-  
+
 }
